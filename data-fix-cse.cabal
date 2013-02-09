@@ -13,6 +13,13 @@ Description:
 
 Stability:       Experimental
 
+Homepage:        https://github.com/anton-k/data-fix-cse
+Bug-Reports:     https://github.com/anton-k/data-fix-cse/issues
+
+Source-repository head
+    Type: git
+    Location: https://github.com/anton-k/data-fix-cse
+
 Extra-Source-Files:
     test/Exp.hs
     test/Impl.hs
