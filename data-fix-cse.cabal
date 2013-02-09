@@ -1,0 +1,30 @@
+Name:            data-fix-cse
+Version:         0.1
+Cabal-Version:   >= 1.6
+License:         BSD3
+License-file:    LICENSE
+Author:          Anton Kholomiov, Oleg Kiselyov
+Maintainer:      <anton.kholomiov@gmail.com>
+Category:        Data
+Synopsis:        Common subexpression elimination for the fixploint types.   
+Build-Type:      Simple
+Description:     
+  Common subexpression elimination for the fixploint types.   
+
+Stability:       Experimental
+
+Extra-Source-Files:
+    test/Exp.hs
+    test/Impl.hs
+    test/Expl.hs
+
+Library
+  Build-depends: base >= 4, data-fix, transformers, containers
+  Hs-source-dirs: src/
+
+  ghc-options: -Wall
+
+  Exposed-Modules: 
+      Data.Fix.Cse
+  Other-Modules:  
+      Data.Fix.BiMap
