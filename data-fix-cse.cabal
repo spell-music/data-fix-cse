@@ -13,6 +13,11 @@ Description:
 
 Stability:       Experimental
 
+Extra-Source-Files:
+    test/Exp.hs
+    test/Impl.hs
+    test/Expl.hs
+
 Homepage:        https://github.com/anton-k/data-fix-cse
 Bug-Reports:     https://github.com/anton-k/data-fix-cse/issues
 
@@ -20,13 +25,8 @@ Source-repository head
     Type: git
     Location: https://github.com/anton-k/data-fix-cse
 
-Extra-Source-Files:
-    test/Exp.hs
-    test/Impl.hs
-    test/Expl.hs
-
 Library
-  Build-depends: base >= 4, data-fix, transformers, containers
+  Build-depends: base >= 4, base < 5, data-fix, transformers, containers
   Hs-source-dirs: src/
 
   ghc-options: -Wall
