@@ -10,7 +10,16 @@ module Data.Fix.Cse (
     -- * Explicit sharing
     letCse, Let(..),
     letCata, letCataM,
-    letWrapper
+    letWrapper,
+
+    -- * Framed sharing
+    -- | If your EDSL contains imperative if-the-else blocks
+    -- we need to use special version of the CSE. It allocates
+    -- frames per each if- or else block. So that variables
+    -- from different if-the-else branches don't get messed up.
+    -- We need to allocate a new frame for each branch.
+    -- We can do it with special structure @FrameInfo@.    
+    FrameInfo(..), cseFramed
 ) where
 
 import Control.Applicative hiding (empty)
@@ -22,6 +31,7 @@ import Data.Traversable
 import Control.Monad.Trans.Class(lift)
 
 import Data.Fix.BiMap
+import qualified Data.Fix.BiMapFramed as F
 
 type VarName = Int
 
@@ -102,5 +112,33 @@ hashcons e = do
   m <- get
   case lookup_key e m of
     Nothing -> let (k,m') = insert e m
+               in  put m' >> return k
+    Just k  -> return k
+
+
+-- | Marker type for creation frames of variables.
+-- Start new frame when if-block starts, create next frame
+-- when you go into the next branch of the same block (with else ir elif),
+-- stop frame when leaving the if-then-else block. Use no frame for all 
+-- other expressions.
+data FrameInfo = NoFrame | StartFrame | StopFrame | NextFrame
+  deriving (Show, Eq, Ord)
+
+-- | Performs common subexpression elimination with implicit sharing using information of frames.  
+-- It doesn't share the variables in different branches of imperative if-then-else block.
+cseFramed :: (Eq (f Int), Ord (f Int), Traversable f) => (f Int -> FrameInfo) -> Fix f -> Dag f
+cseFramed getFrameInfo x = F.getDag $ execState (cataM (hashconsFramed getFrameInfo) x) F.empty
+
+hashconsFramed :: (Ord a) => (a -> FrameInfo) -> a -> State (F.BiMap a) Int
+hashconsFramed getFrameInfo e = do
+  m' <- get
+  let m = case getFrameInfo e of
+        NoFrame    -> m'
+        StartFrame -> F.startFrame m'
+        StopFrame  -> F.stopFrame m'
+        NextFrame  -> F.nextFrame m'      
+
+  case F.lookup_key e m of
+    Nothing -> let (k,m') = F.insert e m
                in  put m' >> return k
     Just k  -> return k
